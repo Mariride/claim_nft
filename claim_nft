@@ -1,0 +1,36 @@
+from web3 import Web3
+from web3.middleware import geth_poa_middleware
+
+# Настройки
+infura_url = 'https://arbitrum-mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'  # Замените на свой Infura URL
+private_key = 'YOUR_PRIVATE_KEY'  # Замените на ваш приватный ключ
+contract_address = 'YOUR_NFT_CONTRACT_ADDRESS'  # Замените на адрес контракта NFT
+token_id = 123  # ID NFT токена, который вы хотите клеймить
+
+# Устанавливаем подключение к сети Arbitrum
+w3 = Web3(Web3.HTTPProvider(infura_url))
+w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+
+# Получаем аккаунт
+account = w3.eth.account.from_key(private_key)
+
+# Загружаем ABI контракта NFT
+contract_abi = [
+    # Здесь нужно добавить ABI вашего NFT контракта
+]
+
+# Создаем экземпляр контракта
+contract = w3.eth.contract(address=contract_address, abi=contract_abi)
+
+def claim_nft():
+    try:
+        # Вызываем функцию клейма NFT
+        tx_hash = contract.functions.claim(token_id).transact({'from': account.address})
+        w3.eth.wait_for_transaction_receipt(tx_hash)
+        print(f"Успешно клеймлен NFT с ID: {token_id}")
+
+    except Exception as e:
+        print(f"Произошла ошибка при клейме NFT: {e}")
+
+# Вызываем функцию клейма NFT
+claim_nft()
